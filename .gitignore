@@ -1,0 +1,12 @@
+/node_modules
+.env
+.env.backup
+.env.production
+.env.local
+/.codex
+/.cursor/
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
