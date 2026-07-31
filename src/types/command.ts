@@ -3,6 +3,7 @@ import type {
   Message,
   PermissionResolvable,
   SlashCommandBuilder,
+  SlashCommandSubcommandBuilder,
 } from 'discord.js';
 
 interface CommandBaseConfig {
@@ -26,7 +27,7 @@ interface BaseCommand {
 }
 
 export interface SlashCommand extends BaseCommand {
-  data: SlashCommandBuilder;
+  data: SlashCommandBuilder | SlashCommandSubcommandBuilder;
 }
 
 export interface PrefixCommand extends CommandBaseConfig {
