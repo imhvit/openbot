@@ -1,5 +1,5 @@
 import { config } from '@/config';
-import type { ExtendedClient } from '@/structure/client';
+import type { ExtendedClient } from '@/structure/Client';
 import chalk from 'chalk';
 import { Collection, Events, Message } from 'discord.js';
 
