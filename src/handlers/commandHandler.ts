@@ -109,7 +109,7 @@ async function loadPrefixCommands(client: ExtendedClient, commandsPath: string) 
         client.prefixCommands.set(command.name, command);
         console.log(
           chalk.magenta(`[PREFIX] `) +
-            chalk.gray(`Comando cargado: ${config.prefix}${command.name}`),
+            chalk.white(`Comando cargado: ${config.prefix}${command.name}`),
         );
       }
     }

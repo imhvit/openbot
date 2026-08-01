@@ -18,18 +18,20 @@ export default {
     const voiceChannel = member.voice.channel;
 
     if (!voiceChannel) {
-      return await interaction.reply({
+      await interaction.reply({
         content: 'Debes estar en un canal de voz para usar este comando.',
         flags: MessageFlags.Ephemeral,
       });
+      return;
     }
 
     const botVoiceChannelId = interaction.guild?.members.me?.voice.channelId;
     if (botVoiceChannelId && botVoiceChannelId !== voiceChannel.id) {
-      return await interaction.reply({
+      await interaction.reply({
         content: 'Debes estar en el mismo canal de voz que el bot para usar este comando.',
         flags: MessageFlags.Ephemeral,
       });
+      return;
     }
 
     await interaction.deferReply();
@@ -42,7 +44,8 @@ export default {
       const result = await node.rest.resolve(search);
 
       if (!result || result.loadType === 'empty' || result.loadType === 'error') {
-        return await interaction.editReply('No se encontraron resultados para tu búsqueda.');
+        await interaction.editReply('No se encontraron resultados para tu búsqueda.');
+        return;
       }
 
       const track =
@@ -89,7 +92,7 @@ export default {
 
       const embedMusic = buildTrackEmbed(track, interaction.user, isFirstTrack);
 
-      return await interaction.editReply({
+      await interaction.editReply({
         content: messageContent,
         embeds: [embedMusic],
       });

@@ -77,4 +77,7 @@ export class GuildQueue {
   public get size(): number {
     return this.tracks.length;
   }
+  public get tracksList(): Track[] {
+    return this.tracks;
+  }
 }
