@@ -3,7 +3,8 @@ import { config, type Config } from '@/config';
 import type { PrefixCommand, SlashCommand, SubcommandGroup } from '@/types/command';
 import { loadCommands } from '@/handlers/commandHandler';
 import { loadEvents } from '@/handlers/eventHandler';
-import { LavalinkManager } from '@/manager/LavalinkManager';
+import { LavalinkManager } from '@/modules/music/LavalinkManager';
+import { MusicManager } from '@/modules/music/MusicManager';
 
 export class ExtendedClient extends Client {
   public slashCommands: Collection<string, SlashCommand | SubcommandGroup>;
@@ -11,6 +12,7 @@ export class ExtendedClient extends Client {
   public cooldowns: Collection<string, Collection<string, number>>;
   public config: Config;
   public lavalink: LavalinkManager;
+  public music: MusicManager;
   constructor() {
     super({
       intents: [
@@ -27,16 +29,13 @@ export class ExtendedClient extends Client {
     this.config = config;
 
     this.lavalink = new LavalinkManager(this);
+    this.music = new MusicManager(this);
   }
 
   public async init() {
-    this.login(this.config.token);
-
     await loadCommands(this);
     await loadEvents(this);
 
-    process.on('unhandledRejection', (error: Error) => {
-      console.error('Unhandled promise rejection:', error);
-    });
+    await this.login(this.config.token);
   }
 }

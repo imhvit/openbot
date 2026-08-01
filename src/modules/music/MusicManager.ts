@@ -1,18 +1,13 @@
+import type { ExtendedClient } from '@/structure/Client';
 import { GuildQueue } from './GuildQueue';
 
 export class MusicManager {
-  private static instance: MusicManager;
   private queues = new Map<string, GuildQueue>();
+  public client: ExtendedClient;
 
-  private constructor() {
+  constructor(client: ExtendedClient) {
+    this.client = client;
     this.queues = new Map<string, GuildQueue>();
-  }
-
-  public static getInstance(): MusicManager {
-    if (!MusicManager.instance) {
-      MusicManager.instance = new MusicManager();
-    }
-    return MusicManager.instance;
   }
 
   public getQueue(guildId: string): GuildQueue {
