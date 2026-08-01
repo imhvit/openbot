@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "target": "es2023",
+    "module": "esnext",
+    "types": ["node"],
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["drizzle.config.ts", "*.config.ts"]
+}

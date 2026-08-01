@@ -1,7 +1,8 @@
-import { Collection, Events, MessageFlags, type Interaction } from 'discord.js';
+import { Collection, Events, GuildMember, MessageFlags, type Interaction } from 'discord.js';
 import type { ExtendedClient } from '@/structure/Client';
 import type { SlashCommand, SubcommandGroup } from '@/types/command';
 import { config } from '@/config';
+import { checkCooldown, getMissingPermissions, isDeveloper } from '@/utils/validators';
 
 const cooldowns = new Collection<string, Collection<string, number>>();
 
@@ -14,51 +15,8 @@ export default {
     if (!command) return;
 
     try {
-      if (command.developer && !config.developers.includes(interaction.user.id)) {
-        return interaction.reply({
-          content: 'Este comando solo está disponible para desarrolladores.',
-          flags: MessageFlags.Ephemeral,
-        });
-      }
-
-      if (command.permissions?.bot) {
-        const botPermissions = interaction.guild?.members.me?.permissions;
-        const missingPermissions = command.permissions.bot.filter(
-          (permission) => !botPermissions?.has(permission),
-        );
-
-        if (missingPermissions.length > 0) {
-          return interaction.reply({
-            content: `No tengo los siguientes permisos requeridos: ${missingPermissions.join(
-              ', ',
-            )}`,
-            flags: MessageFlags.Ephemeral,
-          });
-        }
-      }
-
-      if (command.permissions?.user) {
-        const missingPermissions = command.permissions.user.filter(
-          (permission) => !interaction.memberPermissions?.has(permission),
-        );
-
-        if (missingPermissions.length > 0) {
-          return interaction.reply({
-            content: `No tienes los siguientes permisos requeridos: ${missingPermissions.join(
-              ', ',
-            )}`,
-            flags: MessageFlags.Ephemeral,
-          });
-        }
-      }
-
-      const now = Date.now();
-      if (!cooldowns.has(command.data.name)) {
-        cooldowns.set(command.data.name, new Collection());
-      }
-
-      const timestamps = cooldowns.get(command.data.name);
-      let cooldownAmount = (command.cooldown || 3) * 1000;
+      let targetExecution: any = command;
+      let commandId = command.data.name;
 
       if (isSubcommandGroup(command)) {
         const subcommandName = interaction.options.getSubcommand();
@@ -71,70 +29,52 @@ export default {
           });
         }
 
-        if (subcommand.developer && !config.developers.includes(interaction.user.id)) {
-          return interaction.reply({
-            content: 'Este subcomando solo está disponible para desarrolladores.',
-            flags: MessageFlags.Ephemeral,
-          });
-        }
-
-        if (subcommand.permissions?.bot) {
-          const botPermissions = interaction.guild?.members.me?.permissions;
-          const missingPermissions = subcommand.permissions.bot.filter(
-            (permission) => !botPermissions?.has(permission),
-          );
-
-          if (missingPermissions.length > 0) {
-            return interaction.reply({
-              content: `No tengo los siguientes permisos requeridos: ${missingPermissions.join(
-                ', ',
-              )}`,
-              flags: MessageFlags.Ephemeral,
-            });
-          }
-        }
-
-        if (subcommand.permissions?.user) {
-          const missingPermissions = subcommand.permissions.user.filter(
-            (permission) => !interaction.memberPermissions?.has(permission),
-          );
-
-          if (missingPermissions.length > 0) {
-            return interaction.reply({
-              content: `No tienes los siguientes permisos requeridos: ${missingPermissions.join(
-                ', ',
-              )}`,
-              flags: MessageFlags.Ephemeral,
-            });
-          }
-        }
-
-        cooldownAmount = (subcommand.cooldown || command.cooldown || 3) * 1000;
+        targetExecution = subcommand;
+        commandId = `${command.data.name}-${subcommandName}`;
       }
 
-      const userCooldown = timestamps?.get(interaction.user.id);
-      if (userCooldown) {
-        const expirationTime = userCooldown + cooldownAmount;
-        if (now < expirationTime) {
-          const timeLeft = (expirationTime - now) / 1000;
-          return interaction.reply({
-            content: `Por favor espera ${timeLeft.toFixed(
-              1,
-            )} segundos antes de usar este comando nuevamente.`,
-            flags: MessageFlags.Ephemeral,
-          });
-        }
+      if (targetExecution.developer && !isDeveloper(interaction.user.id)) {
+        return interaction.reply({
+          content: 'Comando exclusivo para desarrolladores.',
+          flags: MessageFlags.Ephemeral,
+        });
       }
 
-      timestamps?.set(interaction.user.id, now);
-      setTimeout(() => timestamps?.delete(interaction.user.id), cooldownAmount);
-
-      if (isSubcommandGroup(command)) {
-        const subcommandName = interaction.options.getSubcommand();
-        await command.subcommands[subcommandName].execute(interaction);
-      } else {
-        await command.execute(interaction);
+      const botMissingPerms = getMissingPermissions(
+        interaction.guild?.members.me,
+        targetExecution.permissions?.bot,
+      );
+      if (botMissingPerms.length) {
+        return interaction.reply({
+          content: `Me faltan permisos: ${botMissingPerms.join(', ')}`,
+          flags: MessageFlags.Ephemeral,
+        });
       }
+
+      const userMissingPerms = (interaction.member as GuildMember)?.permissions
+        ? getMissingPermissions(
+            interaction.member as GuildMember,
+            targetExecution.permissions?.user,
+          )
+        : [];
+      if (userMissingPerms.length) {
+        return interaction.reply({
+          content: `Te faltan permisos: ${userMissingPerms.join(', ')}`,
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+
+      const cooldownAmount = targetExecution.cooldown ?? command.cooldown ?? 3;
+      const timeLeft = checkCooldown(interaction.user.id, commandId, cooldownAmount, cooldowns);
+
+      if (timeLeft !== null) {
+        return interaction.reply({
+          content: `Por favor espera ${timeLeft.toFixed(1)} segundos.`,
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+
+      await targetExecution.execute(interaction);
     } catch (error) {
       console.error(error);
       await interaction.reply({

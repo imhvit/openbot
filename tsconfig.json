@@ -45,5 +45,6 @@
     "moduleDetection": "force",
     "skipLibCheck": true
   },
-  "exclude": ["eslint.config.ts", "node_modules", "dist"]
+  "exclude": ["eslint.config.ts", "node_modules", "dist", "drizzle.config.ts"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

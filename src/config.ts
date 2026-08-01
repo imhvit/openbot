@@ -1,5 +1,6 @@
 import { configDotenv } from 'dotenv';
 import type { LavaLinkNode } from './types/services';
+import type { HexColorString } from 'discord.js';
 
 configDotenv();
 
@@ -12,10 +13,10 @@ export interface Config {
   channel: string;
   lavalink?: LavaLinkNode[];
   colors?: {
-    primary: string;
-    secondary: string;
-    success: string;
-    error: string;
+    primary: HexColorString;
+    secondary: HexColorString;
+    success: HexColorString;
+    error: HexColorString;
   };
 }
 
