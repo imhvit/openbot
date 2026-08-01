@@ -37,10 +37,22 @@ export function buildTrackEmbed(
 }
 
 export function buildQueueEmbed(queue: Track[], requester: User): EmbedBuilder {
+  const queueFields = queue.slice(0, 10).map((track, index) => {
+    const totalSeconds = Math.floor(track.info.length / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+    const duration = track.info.isStream ? 'En vivo' : `${minutes}:${seconds}`;
+    return {
+      name: `${index + 1}. ${track.info.title}`,
+      value: `Duración: ${duration} | Origen: ${track.info.sourceName}`,
+      inline: false,
+    };
+  });
+
   return new EmbedBuilder()
     .setColor('#5865F2')
-    .setAuthor({ name: 'Cola de reproducción' })
-    .setDescription(`**${queue.length} canciones en cola**`)
+    .setTitle(`📋 \`${queue.length}\` canciones en cola`)
+    .addFields(queueFields)
     .setFooter({
       text: `Pedido por: ${requester.username}`,
       iconURL: requester.displayAvatarURL(),
