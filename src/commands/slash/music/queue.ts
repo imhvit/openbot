@@ -1,4 +1,4 @@
-import { MusicManager } from '@/modules/music/MusicManager';
+import type { ExtendedClient } from '@/structure/Client';
 import type { SlashCommand } from '@/types/command';
 import { buildQueueEmbed } from '@/utils/musicEmbeds';
 import { SlashCommandSubcommandBuilder } from 'discord.js';
@@ -10,8 +10,8 @@ export default {
   execute: async (interaction) => {
     await interaction.deferReply();
 
-    const manager = MusicManager.getInstance();
-    const queue = manager.getQueue(interaction.guild!.id);
+    const client = interaction.client as ExtendedClient;
+    const queue = client.music.getQueue(interaction.guild!.id);
 
     try {
       const embedQueue =
