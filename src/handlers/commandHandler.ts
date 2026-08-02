@@ -111,8 +111,8 @@ async function loadPrefixCommands(client: ExtendedClient, commandsPath: string) 
 }
 
 export async function loadCommands(client: ExtendedClient) {
-  const slashCommandsPath = join(__dirname, 'commands', 'slash');
-  const prefixCommandsPath = join(__dirname, 'commands', 'prefix');
+  const slashCommandsPath = join(__dirname, '..', 'commands', 'slash');
+  const prefixCommandsPath = join(__dirname, '..', 'commands', 'prefix');
 
   const slashCommands = await loadSlashCommands(client, slashCommandsPath);
 

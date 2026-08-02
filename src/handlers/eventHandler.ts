@@ -4,7 +4,7 @@ import { readdirSync } from 'fs';
 import { join } from 'path';
 
 export async function loadEvents(client: ExtendedClient) {
-  const eventsPath = join(__dirname, 'events');
+  const eventsPath = join(__dirname, '..', 'events');
 
   const eventFiles = readdirSync(eventsPath, { withFileTypes: true })
     .filter(

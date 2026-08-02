@@ -31,7 +31,7 @@ export const config: Config = {
   developers: ['752670048321011722'],
   guild: process.env.GUILD_ID || '1532508968562327743',
   channel: process.env.CHANNEL_ID || '1532509160569176144',
-  lavalink: [{ name: 'local', url: 'localhost:2333', auth: 'youshallnotpass' }],
+  lavalink: [{ name: 'local_node', url: 'localhost:2333', auth: 'youshallnotpass', secure: false }],
   colors: {
     primary: '#5865F2',
     secondary: '#2C2F33',

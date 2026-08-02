@@ -30,5 +30,11 @@ export class LavalinkManager {
         chalk.yellow(`[LAVALINK] `) + chalk.white(`Nodo cerrado: ${name} (${code}) ${reason}`),
       );
     });
+
+    this.shoukaku.on('disconnect', (name, count) => {
+      console.warn(
+        chalk.yellow(`[LAVALINK] `) + chalk.white(`Nodo ${name} desconectado. Reintentando...`),
+      );
+    });
   }
 }
