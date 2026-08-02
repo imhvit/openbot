@@ -1,0 +1,11 @@
+services:
+  lavalink:
+    image: fredboat/lavalink:4
+    container_name: lavalink_local
+    restart: unless-stopped
+    ports:
+      - "2333:2333"
+    volumes:
+      - ./application.yml:/opt/Lavalink/application.yml
+    env_file:
+      - ../.env
