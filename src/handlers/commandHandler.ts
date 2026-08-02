@@ -2,8 +2,7 @@ import { config } from '@/config';
 import chalk from 'chalk';
 import type { ExtendedClient } from '@/structure/Client';
 import { readdirSync, statSync } from 'fs';
-import { dirname, join } from 'path';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { join } from 'path';
 import { REST, Routes, SlashCommandBuilder } from 'discord.js';
 import type { SlashCommand, SubcommandGroup } from '@/types/command';
 
@@ -27,9 +26,7 @@ async function loadSlashCommands(client: ExtendedClient, commandsPath: string) {
 
       for (const file of files) {
         const filePath = join(folderPath, file);
-        const fileUrl = pathToFileURL(filePath).href;
-        const imported = await import(fileUrl);
-
+        const imported = require(filePath);
         const command = imported.default || imported;
 
         if ('data' in command && 'execute' in command) {
@@ -72,9 +69,7 @@ async function loadSlashCommands(client: ExtendedClient, commandsPath: string) {
       client.slashCommands.set(folder, groupCommand);
     } else if (folder.endsWith('.ts') || folder.endsWith('.js')) {
       const filePath = join(commandsPath, folder);
-      const fileUrl = pathToFileURL(filePath).href;
-      const imported = await import(fileUrl);
-
+      const imported = require(filePath);
       const command = imported.default || imported;
 
       if ('data' in command && 'execute' in command) {
@@ -100,8 +95,7 @@ async function loadPrefixCommands(client: ExtendedClient, commandsPath: string) 
 
     for (const file of commandFiles) {
       const filePath = join(folderPath, file);
-      const fileUrl = pathToFileURL(filePath).href;
-      const imported = await import(fileUrl);
+      const imported = require(filePath);
 
       const command = imported.default || imported;
 
@@ -117,9 +111,6 @@ async function loadPrefixCommands(client: ExtendedClient, commandsPath: string) 
 }
 
 export async function loadCommands(client: ExtendedClient) {
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = dirname(__filename);
-
   const slashCommandsPath = join(__dirname, '..', 'commands', 'slash');
   const prefixCommandsPath = join(__dirname, '..', 'commands', 'prefix');
 

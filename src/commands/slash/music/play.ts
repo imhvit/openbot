@@ -1,4 +1,3 @@
-import { MusicManager } from '@/modules/music/MusicManager';
 import type { ExtendedClient } from '@/structure/Client';
 import type { SlashCommand } from '@/types/command';
 import { buildTrackEmbed } from '@/utils/musicEmbeds';
@@ -55,8 +54,7 @@ export default {
             ? result.data[0]
             : result.data;
 
-      const manager = MusicManager.getInstance();
-      const queue = manager.getQueue(interaction.guild!.id);
+      const queue = client.music.getQueue(interaction.guild!.id);
       queue.textChannel = interaction.channel;
 
       const isFirstTrack = queue.current === null;

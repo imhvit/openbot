@@ -1,9 +1,10 @@
 import { relations } from 'drizzle-orm';
-import { pgTable, text, integer, boolean, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 export const guildsTable = pgTable('guilds', {
   id: uuid('id').defaultRandom().primaryKey(),
   guildId: text('guild_id').notNull().unique(),
+  name: text('name').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   deletedAt: timestamp('deleted_at'),
 });
