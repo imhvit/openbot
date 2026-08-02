@@ -31,7 +31,6 @@
       "onFail": "download"
     }
   },
-  "type": "module",
   "dependencies": {
     "@discordjs/voice": "^0.19.2",
     "chalk": "^6.0.0",

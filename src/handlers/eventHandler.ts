@@ -1,13 +1,10 @@
 import type { ExtendedClient } from '@/structure/Client';
 import chalk from 'chalk';
 import { readdirSync } from 'fs';
-import { dirname, join } from 'path';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { join } from 'path';
 
 export async function loadEvents(client: ExtendedClient) {
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = dirname(__filename);
-  const eventsPath = join(__dirname, '..', 'events');
+  const eventsPath = join(__dirname, 'events');
 
   const eventFiles = readdirSync(eventsPath, { withFileTypes: true })
     .filter(
@@ -17,9 +14,7 @@ export async function loadEvents(client: ExtendedClient) {
 
   for (const file of eventFiles) {
     const filePath = join(eventsPath, file);
-    const fileUrl = pathToFileURL(filePath).href;
-    const imported = await import(fileUrl);
-
+    const imported = require(filePath);
     const event = imported.default || imported;
 
     if (!event.name || typeof event.execute !== 'function') {

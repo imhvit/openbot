@@ -1,9 +1,7 @@
 import { defineConfig } from 'tsup';
 export default defineConfig({
-  entry: ['src/bot.ts'],
-  outDir: 'dist',
-  format: ['esm'],
-  splitting: false,
+  entry: ['src/**/*.ts'],
+  format: ['cjs'],
   sourcemap: true,
   clean: true,
 });
