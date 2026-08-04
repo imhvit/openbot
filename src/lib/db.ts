@@ -1,8 +1,8 @@
 import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
-import * as guildSchema from '@/modules/guild/guildSchema';
-import * as userSchema from '@/modules/users/userSchema';
+import * as guildSchema from '@/db/schemas/guild';
+import * as userSchema from '@/db/schemas/user';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL!,

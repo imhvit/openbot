@@ -12,6 +12,7 @@ export interface Config {
   guild: string;
   channel: string;
   lavalink?: LavaLinkNode[];
+  redisUrl: string;
   colors?: {
     primary: HexColorString;
     secondary: HexColorString;
@@ -32,6 +33,7 @@ export const config: Config = {
   guild: process.env.GUILD_ID || '1532508968562327743',
   channel: process.env.CHANNEL_ID || '1532509160569176144',
   lavalink: [{ name: 'local_node', url: 'localhost:2333', auth: 'youshallnotpass', secure: false }],
+  redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
   colors: {
     primary: '#5865F2',
     secondary: '#2C2F33',
