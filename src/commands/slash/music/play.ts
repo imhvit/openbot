@@ -10,7 +10,7 @@ export default {
     .addStringOption((option) =>
       option.setName('query').setDescription('Nombre de la canción o URL').setRequired(true),
     ),
-  execute: async (interaction) => {
+  async execute(interaction) {
     const client = interaction.client as ExtendedClient;
     const query = interaction.options.getString('query', true);
     const member = interaction.member as GuildMember;
@@ -101,4 +101,4 @@ export default {
       });
     }
   },
-} as SlashCommand;
+} satisfies SlashCommand;

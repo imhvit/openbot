@@ -5,12 +5,13 @@ import type { Message } from 'discord.js';
 export default {
   name: 'play',
   description: 'Reproduce una canción en el canal de voz',
-  execute: async (message: Message, args: string[]) => {
+  async execute(message, args) {
     const client = message.client as ExtendedClient;
     const voiceChannel = message.member?.voice.channel;
 
     if (!voiceChannel) {
-      return message.reply('Debes estar en un canal de voz para usar este comando.');
+      await message.reply('Debes estar en un canal de voz para usar este comando.');
+      return;
     }
 
     try {
@@ -27,9 +28,10 @@ export default {
       const botVoiceChannelId = message.guild!.members.me?.voice.channelId;
 
       if (botVoiceChannelId && botVoiceChannelId !== voiceChannel.id) {
-        return message.reply(
+        await message.reply(
           'Debes estar en el mismo canal de voz que el bot para usar este comando.',
         );
+        return;
       }
 
       const query = args.join(' ');
@@ -38,7 +40,8 @@ export default {
       const result = await player.node.rest.resolve(search);
 
       if (!result || result.loadType === 'empty' || result.loadType === 'error') {
-        return message.reply('No se encontraron resultados para tu búsqueda.');
+        await message.reply('No se encontraron resultados para tu búsqueda.');
+        return;
       }
 
       const track =
@@ -49,7 +52,8 @@ export default {
             : result.data;
 
       if (!track) {
-        return message.reply('No se pudo procesar la pista de audio.');
+        await message.reply('No se pudo procesar la pista de audio.');
+        return;
       }
 
       await player.playTrack({ track: { encoded: track.encoded } });
@@ -60,4 +64,4 @@ export default {
       await message.reply('Hubo un error crítico al interactuar con el nodo de música.');
     }
   },
-} as PrefixCommand;
+} satisfies PrefixCommand;

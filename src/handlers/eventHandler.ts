@@ -12,6 +12,9 @@ export async function loadEvents(client: ExtendedClient) {
     )
     .map((dirent) => dirent.name);
 
+  const totalEvents = eventFiles.length;
+  let loadedEvents = 0;
+
   for (const file of eventFiles) {
     const filePath = join(eventsPath, file);
     const imported = require(filePath);
@@ -31,6 +34,10 @@ export async function loadEvents(client: ExtendedClient) {
       client.on(event.name, (...args) => event.execute(...args, client));
     }
 
-    console.log(chalk.green(`[EVENT] `) + chalk.white(`Evento cargado: ${event.name}`));
+    loadedEvents++;
   }
+
+  console.log(
+    chalk.green(`[Events] `) + chalk.white(`Eventos cargados: ${loadedEvents}/${totalEvents}`),
+  );
 }

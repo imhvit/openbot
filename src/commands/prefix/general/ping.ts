@@ -3,7 +3,7 @@ export default {
   name: 'ping',
   description: 'Responde con "Pong!"',
   cooldown: 5,
-  execute: async (message, args) => {
+  async execute(message, args) {
     await message.reply('pong');
   },
-} as PrefixCommand;
+} satisfies PrefixCommand;

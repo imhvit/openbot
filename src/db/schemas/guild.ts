@@ -10,7 +10,7 @@ export const guildsTable = pgTable('guilds', {
 });
 
 export const guildSettingsTable = pgTable('guild_settings', {
-  id: uuid('id').primaryKey(),
+  id: uuid('id').defaultRandom().primaryKey(),
   guildId: uuid('guild_id')
     .notNull()
     .unique()

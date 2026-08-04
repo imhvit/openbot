@@ -11,7 +11,7 @@ export default {
   data: new SlashCommandSubcommandBuilder()
     .setName('help')
     .setDescription('Muestra un menú de ayuda'),
-  execute: async (interaction) => {
+  async execute(interaction) {
     const embed = new EmbedBuilder()
       .setTitle('Panel de Ayuda')
       .setDescription('Aquí tienes una lista de comandos disponibles.')
@@ -46,4 +46,4 @@ export default {
 
     await interaction.reply({ embeds: [embed], components: [actionRow] });
   },
-} as SlashCommand;
+} satisfies SlashCommand;

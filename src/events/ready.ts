@@ -1,4 +1,4 @@
-import { syncGuilds } from '@/modules/guild/guildService';
+import { syncGuilds } from '@/repositories/guild.repository';
 import type { ExtendedClient } from '@/structure/Client';
 import chalk from 'chalk';
 import { Events } from 'discord.js';
@@ -7,7 +7,7 @@ export default {
   name: Events.ClientReady,
   once: true,
   async execute(client: ExtendedClient) {
-    console.log(chalk.cyan(`[READY] `) + chalk.white(`Conectado como ${client.user?.tag}!`));
+    console.log('[Ready] ' + chalk.white(`Conectado como ${client.user?.tag}!`));
 
     const currentGuilds = client.guilds.cache.map((guild) => ({
       guildId: guild.id,

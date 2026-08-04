@@ -3,12 +3,8 @@ import { GuildQueue } from './GuildQueue';
 
 export class MusicManager {
   private queues = new Map<string, GuildQueue>();
-  public client: ExtendedClient;
 
-  constructor(client: ExtendedClient) {
-    this.client = client;
-    this.queues = new Map<string, GuildQueue>();
-  }
+  constructor(public readonly client: ExtendedClient) {}
 
   public getQueue(guildId: string): GuildQueue {
     let queue = this.queues.get(guildId);

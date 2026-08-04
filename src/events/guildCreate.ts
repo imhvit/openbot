@@ -1,4 +1,4 @@
-import { saveGuild } from '@/modules/guild/guildService';
+import { saveGuild } from '@/repositories/guild.repository';
 import chalk from 'chalk';
 import { Events, Guild } from 'discord.js';
 

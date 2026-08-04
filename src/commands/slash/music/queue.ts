@@ -7,7 +7,7 @@ export default {
   data: new SlashCommandSubcommandBuilder()
     .setName('queue')
     .setDescription('Muestra la cola de reproducción'),
-  execute: async (interaction) => {
+  async execute(interaction) {
     await interaction.deferReply();
 
     const client = interaction.client as ExtendedClient;
@@ -31,4 +31,4 @@ export default {
       await interaction.editReply('Ocurrió un error al mostrar la cola de reproducción.');
     }
   },
-} as SlashCommand;
+} satisfies SlashCommand;

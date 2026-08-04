@@ -1,13 +1,19 @@
-import { config } from '@/config';
 import chalk from 'chalk';
 import type { ExtendedClient } from '@/structure/Client';
 import { readdirSync, statSync } from 'fs';
 import { join } from 'path';
-import { REST, Routes, SlashCommandBuilder } from 'discord.js';
+import { SlashCommandBuilder } from 'discord.js';
 import type { SlashCommand, SubcommandGroup } from '@/types/command';
 
-async function loadSlashCommands(client: ExtendedClient, commandsPath: string) {
-  const commands = [];
+export async function parseSlashCommands(commandsPath: string) {
+  const restPayload = [];
+  const memoryCommands = new Map<string, SlashCommand | SubcommandGroup>();
+
+  let loadedSubcommands = 0,
+    totalSubcommands = 0;
+  let loadedCommands = 0,
+    totalCommands = 0;
+
   const folders = readdirSync(commandsPath);
 
   for (const folder of folders) {
@@ -17,40 +23,36 @@ async function loadSlashCommands(client: ExtendedClient, commandsPath: string) {
       const files = readdirSync(folderPath).filter(
         (file) => file.endsWith('.ts') || file.endsWith('.js'),
       );
-
       const mainCommand = new SlashCommandBuilder()
         .setName(folder)
         .setDescription(`${folder} commands`);
-
       const subcommands: Record<string, SlashCommand> = {};
 
       for (const file of files) {
         const filePath = join(folderPath, file);
+
         const imported = require(filePath);
         const command = imported.default || imported;
 
-        if ('data' in command && 'execute' in command) {
-          const subcommandName = file.replace('.ts', '').replace('.js', '');
-
+        if (command && 'data' in command && 'execute' in command) {
+          const subcommandName = file.replace(/\.(ts|js)$/, '');
+          totalSubcommands++;
           mainCommand.addSubcommand(command.data);
-
           subcommands[subcommandName] = command;
-
-          console.log(
-            chalk.blue(`[SLASH] `) +
-              chalk.white(`SubComando cargado: /${folder} ${subcommandName}`),
-          );
+          loadedSubcommands++;
         }
       }
 
-      commands.push(mainCommand.toJSON());
+      totalCommands++;
+      loadedCommands++;
+      restPayload.push(mainCommand.toJSON());
+
       const groupCommand: SubcommandGroup = {
         isGroup: true,
         subcommands,
         data: mainCommand,
         execute: async (interaction) => {
           if (!interaction.isChatInputCommand()) return;
-
           const subCommandName = interaction.options.getSubcommand();
           const subCommand = subcommands[subCommandName];
 
@@ -58,7 +60,6 @@ async function loadSlashCommands(client: ExtendedClient, commandsPath: string) {
             console.error(`No se encontró el subcomando ${subCommandName}`);
             return;
           }
-
           try {
             await subCommand.execute(interaction);
           } catch (error) {
@@ -66,25 +67,46 @@ async function loadSlashCommands(client: ExtendedClient, commandsPath: string) {
           }
         },
       };
-      client.slashCommands.set(folder, groupCommand);
+
+      memoryCommands.set(folder, groupCommand);
     } else if (folder.endsWith('.ts') || folder.endsWith('.js')) {
       const filePath = join(commandsPath, folder);
+
       const imported = require(filePath);
       const command = imported.default || imported;
 
-      if ('data' in command && 'execute' in command) {
-        client.slashCommands.set(command.data.name, command);
-        commands.push(command.data.toJSON());
-        console.log(chalk.blue(`[SLASH] `) + chalk.white(`Comando cargado: /${command.data.name}`));
+      if (command && 'data' in command && 'execute' in command) {
+        memoryCommands.set(command.data.name, command);
+        restPayload.push(command.data.toJSON());
+        totalCommands++;
+        loadedCommands++;
       }
     }
   }
 
-  return commands;
+  console.log(
+    chalk.blue(`[Slash] `) +
+      chalk.white(`SubComandos cargados: ${loadedSubcommands}/${totalSubcommands}`),
+  );
+  console.log(
+    chalk.blue(`[Slash] `) + chalk.white(`Comandos cargados: ${loadedCommands}/${totalCommands}`),
+  );
+
+  return { restPayload, memoryCommands };
+}
+
+export async function loadSlashCommands(client: ExtendedClient, commandsPath: string) {
+  const { memoryCommands } = await parseSlashCommands(commandsPath);
+
+  for (const [name, command] of memoryCommands) {
+    client.slashCommands.set(name, command);
+  }
 }
 
 async function loadPrefixCommands(client: ExtendedClient, commandsPath: string) {
   const items = readdirSync(commandsPath);
+  let loadedCommands = 0;
+  let totalCommands = 0;
 
   for (const item of items) {
     const folderPath = join(commandsPath, item);
@@ -101,33 +123,25 @@ async function loadPrefixCommands(client: ExtendedClient, commandsPath: string) 
 
       if ('name' in command && 'execute' in command) {
         client.prefixCommands.set(command.name, command);
-        console.log(
-          chalk.magenta(`[PREFIX] `) +
-            chalk.white(`Comando cargado: ${config.prefix}${command.name}`),
-        );
+        totalCommands++;
+        loadedCommands++;
       }
     }
   }
+
+  console.log(
+    chalk.magenta(`[Prefix] `) +
+      chalk.white(`Comandos cargados: ${loadedCommands}/${totalCommands}`),
+  );
 }
 
 export async function loadCommands(client: ExtendedClient) {
   const slashCommandsPath = join(__dirname, '..', 'commands', 'slash');
   const prefixCommandsPath = join(__dirname, '..', 'commands', 'prefix');
 
-  const slashCommands = await loadSlashCommands(client, slashCommandsPath);
-
-  await loadPrefixCommands(client, prefixCommandsPath);
-
-  const rest = new REST().setToken(client.config.token);
-
   try {
-    console.log(chalk.yellow('Actualizando comandos slash...'));
-
-    await rest.put(Routes.applicationCommands(config.clientId), {
-      body: slashCommands,
-    });
-
-    console.log(chalk.green('Comandos slash actualizados.'));
+    await loadSlashCommands(client, slashCommandsPath);
+    await loadPrefixCommands(client, prefixCommandsPath);
   } catch (error) {
     console.error(error);
   }

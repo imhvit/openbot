@@ -3,7 +3,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "rootDir": "./src",
+    "rootDir": ".",
     "outDir": "./dist",
     "module": "esnext",
     "target": "es2022",
@@ -18,6 +18,6 @@
     "moduleDetection": "force",
     "skipLibCheck": true
   },
-  "exclude": ["eslint.config.ts", "node_modules", "drizzle.config.ts"],
+  "exclude": ["eslint.config.ts", "node_modules", "drizzle.config.ts", "dist"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

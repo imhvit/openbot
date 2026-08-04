@@ -18,22 +18,22 @@ export class LavalinkManager {
 
   private setupEvents() {
     this.shoukaku.on('ready', (name) => {
-      console.log(chalk.yellow(`[LAVALINK] `) + chalk.white(`Conectado: ${name}`));
+      console.log(chalk.yellow(`[LavaLink] `) + chalk.white(`Conectado: ${name}`));
     });
 
     this.shoukaku.on('error', (name, error) => {
-      console.error(chalk.red(`[LAVALINK ERROR]`) + chalk.white(` Error en nodo ${name}:`), error);
+      console.error(chalk.red(`[LavaLink Error]`) + chalk.white(` Error en nodo ${name}:`), error);
     });
 
     this.shoukaku.on('close', (name, code, reason) => {
       console.log(
-        chalk.yellow(`[LAVALINK] `) + chalk.white(`Nodo cerrado: ${name} (${code}) ${reason}`),
+        chalk.yellow(`[LavaLink] `) + chalk.white(`Nodo cerrado: ${name} (${code}) ${reason}`),
       );
     });
 
     this.shoukaku.on('disconnect', (name, count) => {
       console.warn(
-        chalk.yellow(`[LAVALINK] `) + chalk.white(`Nodo ${name} desconectado. Reintentando...`),
+        chalk.yellow(`[LavaLink] `) + chalk.white(`Nodo ${name} desconectado. Reintentando...`),
       );
     });
   }
